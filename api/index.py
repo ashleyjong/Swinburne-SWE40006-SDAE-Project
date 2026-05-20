@@ -48,14 +48,27 @@ async def write_data(item: TextItem):
         "Content-Type": "application/json"
     }
     
+    # --- ADD MEMORY (CONTEXT) HERE ---
+    # 1. Start with a system prompt
+    messages = [{"role": "system", "content": "You are Gemini, a helpful AI."}]
+    
+    # 2. Append all previous conversation history from our database
+    for key in sorted(db.keys()):
+        messages.append({"role": "user", "content": db[key]["user"]})
+        messages.append({"role": "assistant", "content": db[key]["ai"]})
+        
+    # 3. Append the brand new user message
+    messages.append({"role": "user", "content": item.text})
+    # ---------------------------------
+    
     payload = {
         "model": "google/gemini-3.5-flash",
-        "messages": [{"role": "user", "content": item.text}]
+        "messages": messages # Send the full history array!
     }
 
     try:
         # Call OpenRouter API asynchronously
-        async with httpx.AsyncClient(timeout=10.0) as client:
+        async with httpx.AsyncClient(timeout=15.0) as client:
             response = await client.post(OPENROUTER_URL, headers=headers, json=payload)
             response.raise_for_status()
             
