@@ -3,66 +3,211 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My LLM App</title>
+    <title>Gemini DevOps Clone</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
-        .item { border: 1px solid #ccc; padding: 10px; margin: 10px 0; border-radius: 5px; }
-        button { background-color: #ff4d4f; color: white; border: none; padding: 5px 10px; cursor: pointer; }
-        #submit-btn { background-color: #1890ff; padding: 10px 20px; font-size: 16px; }
+        :root {
+            --bg-color: #131314;
+            --text-color: #e3e3e3;
+            --user-bubble: #1e1f20;
+            --accent-color: #a8c7fa;
+            --border-color: #444746;
+        }
+        body, html {
+            margin: 0; padding: 0; height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color); color: var(--text-color);
+            display: flex; flex-direction: column;
+        }
+        #header {
+            padding: 20px; font-size: 1.2rem; font-weight: bold; border-bottom: 1px solid var(--border-color);
+            text-align: center; background-color: #1e1f20;
+        }
+        #chat-container {
+            flex: 1; overflow-y: auto; padding: 20px;
+            display: flex; flex-direction: column; gap: 24px;
+            max-width: 800px; margin: 0 auto; width: 100%; box-sizing: border-box;
+        }
+        .message-wrapper { display: flex; flex-direction: column; gap: 8px; position: relative; }
+        .user-message {
+            align-self: flex-end; background-color: var(--user-bubble);
+            padding: 12px 16px; border-radius: 20px 20px 4px 20px; max-width: 80%;
+        }
+        .ai-message {
+            align-self: flex-start; padding: 12px 0; max-width: 100%; line-height: 1.6;
+        }
+        .delete-btn {
+            position: absolute; top: -10px; right: -10px; background: #ff4d4f; color: white;
+            border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer;
+            font-size: 12px; display: none; align-items: center; justify-content: center;
+        }
+        .message-wrapper:hover .delete-btn { display: flex; }
+        
+        #input-container {
+            padding: 20px; max-width: 800px; margin: 0 auto; width: 100%; box-sizing: border-box;
+        }
+        .input-box {
+            display: flex; background-color: var(--user-bubble); border-radius: 24px; padding: 8px;
+            border: 1px solid var(--border-color);
+        }
+        .input-box:focus-within { border-color: var(--accent-color); }
+        input[type="text"] {
+            flex: 1; background: transparent; border: none; color: white;
+            padding: 12px 16px; font-size: 16px; outline: none;
+        }
+        input:disabled, button:disabled { opacity: 0.5; cursor: not-allowed; }
+        button {
+            background-color: transparent; color: var(--accent-color); border: none;
+            padding: 10px 20px; font-weight: bold; cursor: pointer; border-radius: 20px; transition: background 0.2s;
+        }
+        button:not(:disabled):hover { background-color: rgba(168, 199, 250, 0.1); }
+        
+        /* Loading Animation */
+        .loader {
+            display: flex; align-items: center; gap: 5px; height: 24px;
+        }
+        .dot { width: 8px; height: 8px; background-color: var(--accent-color); border-radius: 50%; animation: pulse 1.5s infinite ease-in-out; }
+        .dot:nth-child(1) { animation-delay: -0.3s; }
+        .dot:nth-child(2) { animation-delay: -0.15s; }
+        @keyframes pulse {
+            0%, 80%, 100% { transform: scale(0); opacity: 0.3; }
+            40% { transform: scale(1); opacity: 1; }
+        }
     </style>
 </head>
 <body>
-    <h1>Simulated LLM Pipeline App</h1>
+    <div id="header">DevOps Pipeline AI</div>
     
-    <div>
-        <input type="text" id="userInput" placeholder="Enter text for the LLM..." style="width: 70%; padding: 10px;">
-        <button id="submit-btn" onclick="sendData()">Submit (Write)</button>
+    <div id="chat-container">
+        <!-- Messages inject here -->
     </div>
 
-    <h2>Processed Data (Read)</h2>
-    <div id="dataList">Loading...</div>
+    <div id="input-container">
+        <div class="input-box">
+            <input type="text" id="userInput" placeholder="Ask Gemini..." autocomplete="off">
+            <button id="submit-btn" onclick="sendData()">Send</button>
+        </div>
+    </div>
 
     <script>
+        const chatContainer = document.getElementById('chat-container');
+        const inputField = document.getElementById('userInput');
+        const submitBtn = document.getElementById('submit-btn');
+
+        // Allow Enter key to submit
+        inputField.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                sendData();
+            }
+        });
+
         async function loadData() {
             const res = await fetch('/api/data');
             const json = await res.json();
-            const container = document.getElementById('dataList');
-            container.innerHTML = '';
+            chatContainer.innerHTML = '';
             
             if (Object.keys(json.data).length === 0) {
-                container.innerHTML = '<p>No data yet.</p>';
+                chatContainer.innerHTML = '<div style="text-align:center; color: #888; margin-top:50px;">No messages yet. Send a prompt to start.</div>';
                 return;
             }
 
-            for (const [id, text] of Object.entries(json.data)) {
-                container.innerHTML += `
-                    <div class="item">
-                        <p><strong>ID ${id}:</strong> ${text}</p>
-                        <button onclick="deleteData(${id})">Delete</button>
-                    </div>
-                `;
+            for (const [id, interaction] of Object.entries(json.data)) {
+                addMessageToUI(id, interaction.user, interaction.ai);
             }
+            scrollToBottom();
+        }
+
+        function addMessageToUI(id, userText, aiText) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'message-wrapper';
+            wrapper.id = `msg-${id}`;
+            wrapper.innerHTML = `
+                <button class="delete-btn" onclick="deleteData(${id})" title="Delete this interaction">X</button>
+                <div class="user-message">${escapeHTML(userText)}</div>
+                <div class="ai-message"><strong>AI:</strong> ${formatText(escapeHTML(aiText))}</div>
+            `;
+            chatContainer.appendChild(wrapper);
+        }
+
+        function scrollToBottom() {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
+        }
+
+        function formatText(str) {
+            // Very basic markdown formatting for line breaks
+            return str.replace(/\n/g, '<br>');
         }
 
         async function sendData() {
-            const text = document.getElementById('userInput').value;
+            const text = inputField.value.trim();
             if (!text) return;
             
-            await fetch('/api/data', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text: text })
-            });
-            document.getElementById('userInput').value = '';
-            loadData();
+            // 1. Lock UI
+            inputField.value = '';
+            inputField.disabled = true;
+            submitBtn.disabled = true;
+
+            // 2. Optimistically show User message & Loading Spinner
+            const tempId = 'temp-' + Date.now();
+            const wrapper = document.createElement('div');
+            wrapper.className = 'message-wrapper';
+            wrapper.id = tempId;
+            wrapper.innerHTML = `
+                <div class="user-message">${escapeHTML(text)}</div>
+                <div class="ai-message loader-container">
+                    <div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                </div>
+            `;
+            // Remove empty state message if it exists
+            if(chatContainer.innerHTML.includes("No messages yet")) {
+                chatContainer.innerHTML = '';
+            }
+            chatContainer.appendChild(wrapper);
+            scrollToBottom();
+            
+            try {
+                // 3. Fetch from API
+                const response = await fetch('/api/data', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: text })
+                });
+                
+                if(!response.ok) throw new Error("API request failed");
+                const result = await response.json();
+                
+                // 4. Update UI with real response
+                document.getElementById(tempId).remove();
+                addMessageToUI(result.id, result.data.user, result.data.ai);
+                
+            } catch (error) {
+                document.getElementById(tempId).remove();
+                alert("Error connecting to LLM. Please try again.");
+            } finally {
+                // 5. Unlock UI
+                inputField.disabled = false;
+                submitBtn.disabled = false;
+                inputField.focus();
+                scrollToBottom();
+            }
         }
 
         async function deleteData(id) {
-            await fetch(`/api/data/${id}`, { method: 'DELETE' });
-            loadData();
+            if(confirm("Delete this interaction?")) {
+                await fetch(`/api/data/${id}`, { method: 'DELETE' });
+                document.getElementById(`msg-${id}`).remove();
+                
+                if (chatContainer.children.length === 0) {
+                    chatContainer.innerHTML = '<div style="text-align:center; color: #888; margin-top:50px;">No messages yet. Send a prompt to start.</div>';
+                }
+            }
         }
 
-        // Load data on page start
+        // Initialize
         loadData();
     </script>
 </body>

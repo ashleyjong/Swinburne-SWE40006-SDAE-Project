@@ -11,8 +11,8 @@ load_dotenv()
 
 app = FastAPI()
 
-# Simple in-memory database for our Read/Write/Delete requirements
-db: Dict[int, str] = {}
+# Updated DB structure: { id: {"user": "text", "ai": "text"} }
+db: Dict[int, Dict[str, str]] = {}
 current_id = 1
 
 # Retrieve the API key from environment variables
@@ -65,12 +65,12 @@ async def write_data(item: TextItem):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"LLM Error: {str(e)}")
 
-    # Save to database
-    db[current_id] = llm_response
+    # Save BOTH user text and AI response
+    db[current_id] = {"user": item.text, "ai": llm_response}
     inserted_id = current_id
     current_id += 1
     
-    return {"message": "Success", "id": inserted_id, "text": llm_response}
+    return {"message": "Success", "id": inserted_id, "data": db[inserted_id]}
 
 @app.delete("/api/data/{item_id}")
 def delete_data(item_id: int):

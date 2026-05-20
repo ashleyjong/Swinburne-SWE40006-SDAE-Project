@@ -9,22 +9,26 @@ def test_read_empty():
     assert response.json() == {"data": {}}
 
 def test_write_and_llm_processing():
-    # This will actually call OpenRouter, ensuring the pipeline verifies real API connectivity
     response = client.post("/api/data", json={"text": "Say the word 'Banana' and nothing else."})
     assert response.status_code == 200
-    data = response.json()
-    assert data["message"] == "Success"
-    assert "Banana" in data["text"] or "banana" in data["text"].lower()
+    json_data = response.json()
+    assert json_data["message"] == "Success"
+    
+    # Check that both the user prompt and the AI response were saved correctly
+    assert json_data["data"]["user"] == "Say the word 'Banana' and nothing else."
+    
+    ai_response = json_data["data"]["ai"].lower()
+    assert "banana" in ai_response
 
 def test_delete_function():
-    # Write an item
+    # 1. Write an item
     post_res = client.post("/api/data", json={"text": "Delete me."})
     item_id = post_res.json()["id"]
     
-    # Delete the item
+    # 2. Delete the item
     del_res = client.delete(f"/api/data/{item_id}")
     assert del_res.status_code == 200
     
-    # Verify it is gone
+    # 3. Verify it is gone
     get_res = client.get("/api/data")
     assert str(item_id) not in get_res.json()["data"]
