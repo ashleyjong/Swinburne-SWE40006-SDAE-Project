@@ -34,29 +34,54 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         body { display: flex; height: 100vh; background-color: var(--bg-main); color: var(--text-primary); overflow: hidden; transition: background-color 0.3s, color 0.3s; }
 
-        /* --- SIDEBAR --- */
+        /* --- SIDEBAR (Expandable & Collapsible) --- */
         .sidebar { 
             width: 280px; background-color: var(--bg-sidebar); display: flex; flex-direction: column; 
-            padding: 16px; transition: all 0.3s ease; overflow: hidden; white-space: nowrap;
+            padding: 16px; transition: width 0.3s ease, padding 0.3s ease; overflow: hidden; white-space: nowrap;
         }
-        .sidebar.collapsed { width: 0; padding-left: 0; padding-right: 0; opacity: 0; }
+        .sidebar.collapsed { width: 80px; padding: 16px 12px; } /* Slim mini-sidebar state */
         
-        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
-        .logo-area { display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 500; }
-        .logo-area .material-symbols-outlined { color: #d96570; }
+        /* Hide text elements when collapsed */
+        .sidebar.collapsed .nav-text, .sidebar.collapsed .close-btn { display: none; }
         
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; height: 40px; }
+        .logo-area { display: flex; align-items: center; gap: 8px; }
+        
+        /* App Icon Logic */
+        .app-icon-wrapper {
+            width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+            border-radius: 50%; cursor: default; transition: background-color 0.2s;
+        }
+        .app-icon-default { color: #d96570; font-size: 24px; }
+        .app-icon-hover { display: none; color: var(--text-secondary); font-size: 24px; }
+        
+        /* When collapsed, hover effect swaps icons and enables clicking */
+        .sidebar.collapsed .app-icon-wrapper { cursor: pointer; margin: 0 auto; }
+        .sidebar.collapsed .app-icon-wrapper:hover { background-color: var(--hover-gray); }
+        .sidebar.collapsed .app-icon-wrapper:hover .app-icon-default { display: none; }
+        .sidebar.collapsed .app-icon-wrapper:hover .app-icon-hover { display: block; }
+        
+        .close-btn { color: var(--text-secondary); cursor: pointer; padding: 8px; border-radius: 50%; }
+        .close-btn:hover { background-color: var(--hover-gray); }
+        
+        /* New Chat Button */
         .new-chat-btn {
             display: flex; align-items: center; gap: 12px; background-color: var(--bg-main); padding: 12px 16px; 
             border-radius: 12px; cursor: pointer; color: var(--text-secondary); font-size: 14px; border: 1px solid var(--border-color);
+            transition: all 0.3s; height: 48px; overflow: hidden;
         }
         .new-chat-btn:hover { background-color: var(--hover-gray); }
+        .sidebar.collapsed .new-chat-btn { width: 48px; margin: 0 auto; padding: 0; justify-content: center; border-radius: 50%; }
 
         .spacer { flex: 1; }
 
+        /* Settings Button */
         .settings-btn {
-            display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 8px; cursor: pointer; color: var(--text-secondary); font-size: 14px;
+            display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 8px; cursor: pointer; color: var(--text-secondary); font-size: 14px;
+            transition: all 0.3s; height: 48px; overflow: hidden;
         }
         .settings-btn:hover { background-color: var(--hover-gray); }
+        .sidebar.collapsed .settings-btn { width: 48px; margin: 0 auto; padding: 0; justify-content: center; border-radius: 50%; }
 
         /* --- MAIN CONTENT LAYOUT --- */
         .main-content {
@@ -64,10 +89,8 @@
             background: radial-gradient(circle at 50% 50%, var(--gradient-start) 0%, var(--gradient-end) 50%);
         }
 
-        /* Reintroduced Top Nav for proper spacing & Hamburger Menu */
+        /* Restored top spacing (empty container) */
         .top-nav { display: flex; justify-content: flex-start; padding: 16px 24px; min-height: 56px; }
-        .top-nav .material-symbols-outlined { cursor: pointer; color: var(--text-secondary); font-size: 24px; transition: color 0.2s; }
-        .top-nav .material-symbols-outlined:hover { color: var(--text-primary); }
 
         /* State Manager: Center vs Bottom */
         .main-wrapper {
@@ -96,7 +119,7 @@
             border-radius: 24px; max-width: 80%; font-size: 15px; line-height: 1.5;
         }
         
-        /* Fixed Avatar Alignment: flex-start aligns to top, flex-shrink: 0 prevents deformation */
+        /* Fixed Avatar Alignment: flex-start aligns to top row, margin-top visually centers it to the first line */
         .ai-message { 
             align-self: flex-start; display: flex; gap: 16px; align-items: flex-start; 
             max-width: 90%; line-height: 1.6; font-size: 15px; 
@@ -104,7 +127,8 @@
         .ai-avatar {
             width: 30px; height: 30px; min-width: 30px; flex-shrink: 0;
             border-radius: 50%; background: linear-gradient(135deg, #a8c7fa, #d96570);
-            display: flex; align-items: center; justify-content: center; margin-top: 2px;
+            display: flex; align-items: center; justify-content: center;
+            margin-top: -3px; 
         }
         .ai-avatar .material-symbols-outlined { 
             font-size: 18px; color: #131314; margin: 0; padding: 0; line-height: 1; 
@@ -133,26 +157,32 @@
 
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <div class="logo-area"><span class="material-symbols-outlined">temp_preferences_custom</span> Gemini</div>
-            <span class="material-symbols-outlined" id="close-sidebar-btn" style="color:var(--text-secondary); cursor:pointer;" title="Collapse menu">left_panel_close</span>
+            <div class="logo-area">
+                <div class="app-icon-wrapper" id="app-icon-wrapper" title="Expand menu">
+                    <span class="material-symbols-outlined app-icon-default">temp_preferences_custom</span>
+                    <span class="material-symbols-outlined app-icon-hover">right_panel_open</span>
+                </div>
+                <span class="nav-text" style="font-size:18px; font-weight:500;">Gemini</span>
+            </div>
+            <span class="material-symbols-outlined close-btn" id="close-sidebar-btn" title="Collapse menu">left_panel_close</span>
         </div>
         
-        <div class="new-chat-btn" onclick="resetChat()">
-            <span class="material-symbols-outlined">add</span> New chat
+        <div class="new-chat-btn" onclick="resetChat()" title="New chat">
+            <span class="material-symbols-outlined">add</span> 
+            <span class="nav-text">New chat</span>
         </div>
 
         <div class="spacer"></div> 
 
-        <div class="settings-btn" onclick="toggleTheme()">
-            <span class="material-symbols-outlined" id="theme-icon">light_mode</span> <span id="theme-text">Toggle light mode</span>
+        <div class="settings-btn" onclick="toggleTheme()" title="Settings">
+            <span class="material-symbols-outlined" id="theme-icon">light_mode</span> 
+            <span class="nav-text" id="theme-text">Toggle light mode</span>
         </div>
     </div>
 
     <div class="main-content">
-        <!-- Re-added top nav for spacing and hamburger menu -->
-        <div class="top-nav">
-            <span class="material-symbols-outlined" id="open-sidebar-btn" style="display:none;" title="Main menu">menu</span>
-        </div>
+        <!-- Re-added top nav for padding/spacing -->
+        <div class="top-nav"></div>
 
         <!-- Dynamic Wrapper handles Centered vs Bottom Layout -->
         <div class="main-wrapper" id="main-wrapper">
@@ -180,16 +210,16 @@
         // Sidebar Toggle Logic
         const sidebar = document.getElementById('sidebar');
         const closeSidebarBtn = document.getElementById('close-sidebar-btn');
-        const openSidebarBtn = document.getElementById('open-sidebar-btn');
+        const appIconWrapper = document.getElementById('app-icon-wrapper');
 
         closeSidebarBtn.addEventListener('click', () => {
             sidebar.classList.add('collapsed');
-            openSidebarBtn.style.display = 'block'; // Show hamburger menu
         });
 
-        openSidebarBtn.addEventListener('click', () => {
-            sidebar.classList.remove('collapsed');
-            openSidebarBtn.style.display = 'none'; // Hide hamburger menu
+        appIconWrapper.addEventListener('click', () => {
+            if (sidebar.classList.contains('collapsed')) {
+                sidebar.classList.remove('collapsed');
+            }
         });
 
         // Array of dynamic greetings
