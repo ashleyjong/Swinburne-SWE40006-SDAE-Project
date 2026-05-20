@@ -21,17 +21,14 @@ class TextItem(BaseModel):
 
 @app.get("/")
 def serve_frontend():
-    # Calculate the absolute path
+    # Calculate the absolute path to the root folder
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    file_path = os.path.join(base_dir, "public", "index.html")
+    file_path = os.path.join(base_dir, "index.html")
     
-    # If it exists (like on your local machine), serve it via Python
     if os.path.exists(file_path):
         return FileResponse(file_path)
         
-    # If it doesn't exist (like on Vercel), return a safe API message
-    # Vercel's routing should intercept the HTML request before it ever reaches this anyway!
-    return {"message": "API is active. Frontend is handled by Vercel CDN."}
+    return {"error": "index.html not found"}
 
 @app.get("/api/data")
 def read_data():
