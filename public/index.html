@@ -11,6 +11,7 @@
             --bg-main: #131314;
             --bg-sidebar: #1e1f20;
             --bg-input: #1e1f20;
+            --user-bubble: #1e1f20;
             --text-primary: #e3e3e3;
             --text-secondary: #c4c7c5;
             --hover-gray: #333537;
@@ -25,14 +26,15 @@
             --bg-main: #ffffff;
             --bg-sidebar: #f0f4f9;
             --bg-input: #f0f4f9;
+            --user-bubble: #e1e5ea; /* Deepened for distinct chat bubble contrast */
             --text-primary: #1f1f1f;
             --text-secondary: #444746;
-            --hover-gray: #e1e5ea;
-            --border-color: #e0e0e0;
+            --hover-gray: #d3d7db;
+            --border-color: #c7c7c7; /* Darkened to give the input box definition */
             --gradient-start: #e8f0fe;
             --gradient-end: #ffffff;
-            --code-bg: #f0f4f9;
-            --scrollbar-thumb: #c4c7c5;
+            --code-bg: #e8eaed; /* Deepened to separate code from normal text */
+            --scrollbar-thumb: #a0a3a5; /* Darkened for visibility */
         }
 
         /* Themed Edge-to-Edge Scrollbars */
@@ -138,8 +140,9 @@
         .message-row { display: flex; flex-direction: column; gap: 12px; position: relative; width: 100%; }
         
         .user-message {
-            align-self: flex-end; background-color: var(--bg-sidebar); padding: 14px 20px;
+            align-self: flex-end; background-color: var(--user-bubble); padding: 14px 20px;
             border-radius: 24px; max-width: 80%; font-size: 15px; line-height: 1.5;
+            color: var(--text-primary); transition: background-color 0.3s;
         }
         
         .ai-message { 
@@ -160,8 +163,8 @@
         .ai-text p { margin-bottom: 12px; }
         .ai-text p:last-child { margin-bottom: 0; }
         .ai-text strong { font-weight: 600; color: var(--text-primary); }
-        .ai-text pre { background-color: var(--code-bg); padding: 12px 16px; border-radius: 8px; overflow-x: auto; margin: 12px 0; border: 1px solid var(--border-color); }
-        .ai-text code { font-family: monospace; background-color: var(--code-bg); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+        .ai-text pre { background-color: var(--code-bg); padding: 12px 16px; border-radius: 8px; overflow-x: auto; margin: 12px 0; border: 1px solid var(--border-color); transition: background-color 0.3s; }
+        .ai-text code { font-family: monospace; background-color: var(--code-bg); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; transition: background-color 0.3s; }
         .ai-text pre code { background-color: transparent; padding: 0; font-size: 14px; }
         .ai-text ul, .ai-text ol { margin: 12px 0 12px 24px; text-align: left; }
         .ai-text a { color: var(--accent-blue); text-decoration: none; }
@@ -170,7 +173,7 @@
         /* --- INPUT BOX --- */
         .input-box {
             display: flex; align-items: center; background-color: var(--bg-input); border-radius: 32px;
-            padding: 12px 24px; gap: 16px; border: 1px solid var(--border-color); transition: border-color 0.2s;
+            padding: 12px 24px; gap: 16px; border: 1px solid var(--border-color); transition: border-color 0.2s, background-color 0.3s;
             pointer-events: auto; /* Lets you click through the transparent container */
         }
         .input-box:focus-within { border-color: #888; }
