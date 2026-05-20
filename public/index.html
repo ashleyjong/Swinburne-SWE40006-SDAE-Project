@@ -157,10 +157,13 @@
             flex: 1; background: transparent; border: none; color: var(--text-primary); font-size: 16px; outline: none; padding: 8px 0;
         }
 
-        /* Loading */
+        /* --- LOADING ANIMATION --- */
+        /* Perfectly centred against the 30px height avatar */
         .loading-shimmer {
-            height: 20px; width: 200px; background: linear-gradient(90deg, var(--bg-sidebar) 25%, var(--border-color) 50%, var(--bg-sidebar) 75%);
-            background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 4px; 
+            height: 16px; width: 200px; 
+            margin-top: 7px; /* (30px avatar - 16px height) / 2 = 7px */
+            background: linear-gradient(90deg, var(--bg-sidebar) 25%, var(--border-color) 50%, var(--bg-sidebar) 75%);
+            background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px; 
         }
         @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
     </style>
@@ -333,12 +336,12 @@
             wrapper.className = 'message-row';
             wrapper.id = tempId;
             
-            // Text is safely wrapped here as well
+            // Notice how the loading-shimmer is completely stripped of the 'ai-text' class
             wrapper.innerHTML = `
                 <div class="user-message">${escapeHTML(text)}</div>
                 <div class="ai-message">
                     <div class="ai-avatar"><span class="material-symbols-outlined">temp_preferences_custom</span></div>
-                    <div class="ai-text loading-shimmer"></div>
+                    <div class="loading-shimmer"></div>
                 </div>
             `;
             chatContainer.appendChild(wrapper);
