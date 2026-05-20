@@ -4,11 +4,11 @@ This project is a monolithic Python web application featuring a frontend interfa
 
 It acts as the vehicle for demonstrating a fully automated DevOps Server Pipeline (CI/CD) for **SWE40006 Software Deployment and Evolution**.
 
-## 👥 Team Members
+## Team Members
 * Ashley Jong (102780087)
 * Daniel Tiong (102777801)
 
-## 🛠️ Technology Stack
+## Technology Stack
 * **Frontend:** HTML, CSS, JavaScript (Vanilla, no build tools required)
 * **Backend:** Python, FastAPI, Uvicorn
 * **AI Integration:** OpenRouter API (google/gemini-3.5-flash)
@@ -16,7 +16,7 @@ It acts as the vehicle for demonstrating a fully automated DevOps Server Pipelin
 * **Testing:** Pytest
 * **Dependency Management:** `uv`
 
-## 🚀 DevOps Pipeline Architecture
+## DevOps Pipeline Architecture
 This repository implements a 4-tier DevOps pipeline:
 
 1. **Level 1 (Pipeline):** Source code is maintained on GitHub. Pushes trigger GitHub Actions (CI server) to run automated tests. Upon passing, code is automatically deployed to a Vercel Production server. Pull Requests automatically deploy to a Vercel Test Server (Preview Deployments).
@@ -24,7 +24,7 @@ This repository implements a 4-tier DevOps pipeline:
 3. **Level 3 (Verification):** The monolithic application is fully functional, capable of interacting with the LLM API, and maintains conversation context dynamically.
 4. **Level 4 (Automation):** Any pushes to the `main` branch that pass the `pytest` suite automatically trigger a deferred deployment build on Vercel without manual intervention.
 
-## 💻 Local Development Setup
+## Local Development Setup
 
 We use `uv` for lightning-fast dependency management.
 
@@ -47,7 +47,7 @@ We use `uv` for lightning-fast dependency management.
    ```
    *The application will be available at `http://127.0.0.1:8000/`*
 
-## 🧪 Automated Testing
+## Automated Testing
 To run the automated integration and unit test suite locally:
 ```bash
 uv run pytest test_app.py -v
