@@ -100,9 +100,11 @@
 
         .top-nav { display: flex; justify-content: flex-start; padding: 16px 24px; min-height: 56px; }
 
+        /* ADDED overflow: hidden HERE to fix the scrolling bug */
         .main-wrapper {
             flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
             width: 100%; transition: justify-content 0.3s ease; padding-left: 72px; /* Offset for the floating buttons */
+            overflow: hidden; 
         }
         
         .welcome-text { font-size: 32px; font-weight: 400; text-align: center; margin-bottom: 40px; transition: opacity 0.3s; }
@@ -112,7 +114,11 @@
             display: none; flex-direction: column; gap: 32px; margin: 0 auto;
         }
 
-        .input-container { width: 100%; max-width: 800px; padding: 0 20px 32px 20px; transition: all 0.3s; }
+        /* ADDED flex-shrink: 0 HERE to ensure the input box never gets squished */
+        .input-container { 
+            width: 100%; max-width: 800px; padding: 0 20px 32px 20px; transition: all 0.3s; 
+            flex-shrink: 0; 
+        }
 
         /* Active Chat State Classes */
         .main-wrapper.chat-active { justify-content: flex-end; }
