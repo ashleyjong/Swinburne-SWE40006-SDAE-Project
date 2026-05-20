@@ -32,3 +32,16 @@ def test_delete_function():
     # 3. Verify it is gone
     get_res = client.get("/api/data")
     assert str(item_id) not in get_res.json()["data"]
+
+def test_reset_data():
+    # 1. Write an item to ensure the DB isn't empty
+    client.post("/api/data", json={"text": "Populate the database."})
+    
+    # 2. Call the reset endpoint
+    reset_res = client.delete("/api/reset")
+    assert reset_res.status_code == 200
+    assert reset_res.json()["message"] == "Chat memory reset."
+    
+    # 3. Verify the database is empty
+    get_res = client.get("/api/data")
+    assert get_res.json()["data"] == {}

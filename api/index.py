@@ -92,3 +92,11 @@ def delete_data(item_id: int):
         del db[item_id]
         return {"message": f"Item {item_id} deleted."}
     raise HTTPException(status_code=404, detail="Item not found")
+
+# --- NEW ROUTE: CLEAR ALL DATA FOR "NEW CHAT" ---
+@app.delete("/api/reset")
+def reset_data():
+    global db, current_id
+    db.clear()
+    current_id = 1
+    return {"message": "Chat memory reset."}
