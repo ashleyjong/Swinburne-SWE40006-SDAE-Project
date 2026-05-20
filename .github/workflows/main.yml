@@ -26,7 +26,6 @@ jobs:
 
     - name: Run Pytest Automation Suite
       env:
-        # Changed to underscores to comply with Linux Bash syntax
         OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
       run: |
         pytest test_app.py -v
