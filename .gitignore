@@ -3,4 +3,4 @@
 __pycache__
 Resources/SWE40006 Software Deployment and Evolution - Project Brief.pdf
 .env
-
+.pytest_cache/
