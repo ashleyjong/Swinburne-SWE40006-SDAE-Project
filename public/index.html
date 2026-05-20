@@ -113,31 +113,32 @@
             background: radial-gradient(circle at 50% 50%, var(--gradient-start) 0%, var(--gradient-end) 100%);
         }
 
-        /* Main Wrapper now handles the scrolling. This guarantees the scrollbar stretches from 0px top to 100vh bottom. */
+        /* Main Wrapper handles scrolling so scrollbar spans exact absolute top to bottom */
         .main-wrapper {
             flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-            width: 100%; transition: justify-content 0.3s ease; padding-left: 72px; 
-            overflow-y: auto; overflow-x: hidden; height: 100vh; position: relative;
-        }
-        
-        /* Auto margin seamlessly centers the text vertically when chat is empty */
-        .welcome-text { font-size: 32px; font-weight: 400; text-align: center; margin: auto 0; transition: opacity 0.3s; }
-        
-        .chat-container {
-            width: 100%; max-width: 840px; flex: 1 0 auto; padding: 56px 20px 140px 20px;
-            display: none; flex-direction: column; gap: 32px; margin: 0 auto;
+            width: 100%; padding-left: 72px; overflow-y: auto; overflow-x: hidden; position: relative;
         }
 
-        /* Sticky position keeps the input box pinned to the bottom of your screen while text scrolls behind it */
-        .input-container { 
-            position: sticky; bottom: 0; width: 100%; max-width: 840px; margin: 0 auto; 
-            padding: 40px 20px 32px 20px; transition: all 0.3s; flex-shrink: 0;
-            background: linear-gradient(to top, var(--gradient-end) 65%, transparent);
-            pointer-events: none; z-index: 5;
+        /* Top Nav moved inside scrolling wrapper */
+        .top-nav { width: 100%; display: flex; justify-content: flex-start; padding: 16px 24px; min-height: 56px; flex-shrink: 0; }
+        
+        .welcome-text { font-size: 32px; font-weight: 400; text-align: center; margin: auto 0; transition: opacity 0.3s; }
+        
+        /* Margin-top: auto forces the chat down without disrupting other elements */
+        .chat-container {
+            width: 100%; max-width: 840px; padding: 20px 20px 40px 20px;
+            display: none; flex-direction: column; gap: 32px; margin: auto auto 0 auto;
         }
 
         .main-wrapper.chat-active .chat-container { display: flex; }
         .main-wrapper.chat-active .welcome-text { display: none; }
+
+        /* Transparent Input Container pinned to bottom */
+        .input-container { 
+            position: sticky; bottom: 0; width: 100%; max-width: 840px; margin: 0 auto; 
+            padding: 20px 20px 32px 20px; flex-shrink: 0;
+            background: transparent; pointer-events: none; z-index: 5;
+        }
 
         /* --- MESSAGES --- */
         .message-row { display: flex; flex-direction: column; gap: 12px; position: relative; width: 100%; }
@@ -200,7 +201,7 @@
             <div class="logo-area">
                 <div class="app-icon-wrapper" id="app-icon-wrapper" title="Expand menu">
                     <span class="material-symbols-outlined app-icon-default">temp_preferences_custom</span>
-                    <span class="material-symbols-outlined app-icon-hover">right_panel_open</span>
+                    <span class="material-symbols-outlined app-icon-hover">left_panel_open</span>
                 </div>
                 <span class="nav-text" style="font-size:18px; font-weight:500;">Gemini</span>
             </div>
@@ -222,6 +223,8 @@
 
     <div class="main-content">
         <div class="main-wrapper" id="main-wrapper">
+            
+            <div class="top-nav"></div>
             
             <div class="welcome-text" id="welcome-text">What should we focus on?</div>
             
