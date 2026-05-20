@@ -37,31 +37,34 @@
         /* --- SIDEBAR (Expandable & Collapsible) --- */
         .sidebar { 
             width: 280px; background-color: var(--bg-sidebar); display: flex; flex-direction: column; 
-            padding: 16px; transition: width 0.3s ease, padding 0.3s ease; overflow: hidden; white-space: nowrap;
+            padding: 16px; transition: width 0.3s ease, background-color 0.3s ease, padding 0.3s ease; 
+            overflow: hidden; white-space: nowrap; z-index: 10;
         }
-        .sidebar.collapsed { width: 80px; padding: 16px 12px; } /* Slim mini-sidebar state */
         
-        /* Hide text elements when collapsed */
+        /* Collapsed State: Transparent background, perfectly aligned floating icons */
+        .sidebar.collapsed { width: 72px; padding: 16px 12px; background-color: transparent; }
         .sidebar.collapsed .nav-text, .sidebar.collapsed .close-btn { display: none; }
         
-        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; height: 40px; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; height: 48px; }
+        .sidebar.collapsed .sidebar-header { justify-content: center; }
+        
         .logo-area { display: flex; align-items: center; gap: 8px; }
+        .sidebar.collapsed .logo-area { width: 100%; justify-content: center; }
         
         /* App Icon Logic */
         .app-icon-wrapper {
             width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
             border-radius: 50%; cursor: default; transition: background-color 0.2s;
         }
+        .sidebar.collapsed .app-icon-wrapper { width: 48px; height: 48px; margin: 0 auto; cursor: pointer; }
+        .sidebar.collapsed .app-icon-wrapper:hover { background-color: var(--hover-gray); }
+        
         .app-icon-default { color: #d96570; font-size: 24px; }
         .app-icon-hover { display: none; color: var(--text-secondary); font-size: 24px; }
-        
-        /* When collapsed, hover effect swaps icons and enables clicking */
-        .sidebar.collapsed .app-icon-wrapper { cursor: pointer; margin: 0 auto; }
-        .sidebar.collapsed .app-icon-wrapper:hover { background-color: var(--hover-gray); }
         .sidebar.collapsed .app-icon-wrapper:hover .app-icon-default { display: none; }
         .sidebar.collapsed .app-icon-wrapper:hover .app-icon-hover { display: block; }
         
-        .close-btn { color: var(--text-secondary); cursor: pointer; padding: 8px; border-radius: 50%; }
+        .close-btn { color: var(--text-secondary); cursor: pointer; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
         .close-btn:hover { background-color: var(--hover-gray); }
         
         /* New Chat Button */
@@ -71,7 +74,10 @@
             transition: all 0.3s; height: 48px; overflow: hidden;
         }
         .new-chat-btn:hover { background-color: var(--hover-gray); }
-        .sidebar.collapsed .new-chat-btn { width: 48px; margin: 0 auto; padding: 0; justify-content: center; border-radius: 50%; }
+        .sidebar.collapsed .new-chat-btn { 
+            width: 48px; margin: 0 auto; padding: 0; justify-content: center; 
+            border-radius: 50%; border-color: transparent; background-color: transparent; 
+        }
 
         .spacer { flex: 1; }
 
@@ -81,21 +87,22 @@
             transition: all 0.3s; height: 48px; overflow: hidden;
         }
         .settings-btn:hover { background-color: var(--hover-gray); }
-        .sidebar.collapsed .settings-btn { width: 48px; margin: 0 auto; padding: 0; justify-content: center; border-radius: 50%; }
+        .sidebar.collapsed .settings-btn { 
+            width: 48px; margin: 0 auto; padding: 0; justify-content: center; 
+            border-radius: 50%; background-color: transparent; 
+        }
 
         /* --- MAIN CONTENT LAYOUT --- */
         .main-content {
-            flex: 1; display: flex; flex-direction: column; position: relative;
+            flex: 1; display: flex; flex-direction: column; position: relative; margin-left: -72px; /* Pull content under the transparent collapsed sidebar */
             background: radial-gradient(circle at 50% 50%, var(--gradient-start) 0%, var(--gradient-end) 50%);
         }
 
-        /* Restored top spacing (empty container) */
         .top-nav { display: flex; justify-content: flex-start; padding: 16px 24px; min-height: 56px; }
 
-        /* State Manager: Center vs Bottom */
         .main-wrapper {
             flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            width: 100%; transition: justify-content 0.3s ease;
+            width: 100%; transition: justify-content 0.3s ease; padding-left: 72px; /* Offset for the floating buttons */
         }
         
         .welcome-text { font-size: 32px; font-weight: 400; text-align: center; margin-bottom: 40px; transition: opacity 0.3s; }
@@ -119,20 +126,25 @@
             border-radius: 24px; max-width: 80%; font-size: 15px; line-height: 1.5;
         }
         
-        /* Fixed Avatar Alignment: flex-start aligns to top row, margin-top visually centers it to the first line */
+        /* Bulletproof Avatar & Text Alignment */
         .ai-message { 
             align-self: flex-start; display: flex; gap: 16px; align-items: flex-start; 
             max-width: 90%; line-height: 1.6; font-size: 15px; 
         }
+        
+        /* Hard-locked circle to ensure icon never shifts */
         .ai-avatar {
-            width: 30px; height: 30px; min-width: 30px; flex-shrink: 0;
+            width: 30px; height: 30px; min-width: 30px; min-height: 30px; flex-shrink: 0;
             border-radius: 50%; background: linear-gradient(135deg, #a8c7fa, #d96570);
             display: flex; align-items: center; justify-content: center;
-            margin-top: -3px; 
         }
+        
         .ai-avatar .material-symbols-outlined { 
-            font-size: 18px; color: #131314; margin: 0; padding: 0; line-height: 1; 
+            font-size: 18px; color: #131314; display: block; 
         }
+        
+        /* Pushes the text down slightly so the first line visually centers with the 30px tall avatar */
+        .ai-text { padding-top: 3px; }
 
         /* --- INPUT BOX --- */
         .input-box {
@@ -148,7 +160,7 @@
         /* Loading */
         .loading-shimmer {
             height: 20px; width: 200px; background: linear-gradient(90deg, var(--bg-sidebar) 25%, var(--border-color) 50%, var(--bg-sidebar) 75%);
-            background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 4px; margin-top: 2px;
+            background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 4px; 
         }
         @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
     </style>
@@ -288,11 +300,13 @@
         function addMessageToUI(id, userText, aiText) {
             const wrapper = document.createElement('div');
             wrapper.className = 'message-row';
+            
+            // Notice how the text is now safely wrapped inside `<div class="ai-text">`
             wrapper.innerHTML = `
                 <div class="user-message">${escapeHTML(userText)}</div>
                 <div class="ai-message">
                     <div class="ai-avatar"><span class="material-symbols-outlined">temp_preferences_custom</span></div>
-                    <div>${formatText(escapeHTML(aiText))}</div>
+                    <div class="ai-text">${formatText(escapeHTML(aiText))}</div>
                 </div>
             `;
             chatContainer.appendChild(wrapper);
@@ -318,11 +332,13 @@
             const wrapper = document.createElement('div');
             wrapper.className = 'message-row';
             wrapper.id = tempId;
+            
+            // Text is safely wrapped here as well
             wrapper.innerHTML = `
                 <div class="user-message">${escapeHTML(text)}</div>
                 <div class="ai-message">
                     <div class="ai-avatar"><span class="material-symbols-outlined">temp_preferences_custom</span></div>
-                    <div class="loading-shimmer"></div>
+                    <div class="ai-text loading-shimmer"></div>
                 </div>
             `;
             chatContainer.appendChild(wrapper);
