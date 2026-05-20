@@ -13,7 +13,7 @@ app = FastAPI()
 db: Dict[int, Dict[str, str]] = {}
 current_id = 1
 
-API_KEY = os.getenv("OpenRouter-API-Keys")
+API_KEY = os.getenv("OPENROUTER_API_KEY") or os.getenv("OpenRouter-API-Keys")
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 class TextItem(BaseModel):

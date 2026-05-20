@@ -26,7 +26,7 @@ jobs:
 
     - name: Run Pytest Automation Suite
       env:
-        # We inject the API key securely into the test environment so it can reach OpenRouter
-        OpenRouter-API-Keys: ${{ secrets.OPENROUTER_API_KEY }}
+        # Changed to underscores to comply with Linux Bash syntax
+        OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
       run: |
         pytest test_app.py -v
