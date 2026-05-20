@@ -6,37 +6,29 @@ from pydantic import BaseModel
 from typing import Dict
 from dotenv import load_dotenv
 
-# Load the .env file for local development
 load_dotenv()
 
 app = FastAPI()
 
-# Updated DB structure: { id: {"user": "text", "ai": "text"} }
 db: Dict[int, Dict[str, str]] = {}
 current_id = 1
 
-# Retrieve the API key from environment variables
 API_KEY = os.getenv("OpenRouter-API-Keys")
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 class TextItem(BaseModel):
     text: str
 
-# --- Local Testing Route ---
 @app.get("/")
 def serve_frontend():
-    """Serves the HTML frontend when testing locally."""
     return FileResponse("public/index.html")
-# ---------------------------
 
 @app.get("/api/data")
 def read_data():
-    """READ: Get all processed items"""
     return {"data": db}
 
 @app.post("/api/data")
 async def write_data(item: TextItem):
-    """WRITE: Send text to OpenRouter LLM and save response"""
     global current_id
     
     if not API_KEY:
@@ -44,30 +36,24 @@ async def write_data(item: TextItem):
 
     headers = {
         "Authorization": f"Bearer {API_KEY}",
-        "HTTP-Referer": "https://github.com/yourusername/devops-llm-app", # Required by OpenRouter
+        "HTTP-Referer": "https://github.com/yourusername/devops-llm-app",
         "Content-Type": "application/json"
     }
     
-    # --- ADD MEMORY (CONTEXT) HERE ---
-    # 1. Start with a system prompt
     messages = [{"role": "system", "content": "You are Gemini, a helpful AI."}]
     
-    # 2. Append all previous conversation history from our database
     for key in sorted(db.keys()):
         messages.append({"role": "user", "content": db[key]["user"]})
         messages.append({"role": "assistant", "content": db[key]["ai"]})
         
-    # 3. Append the brand new user message
     messages.append({"role": "user", "content": item.text})
-    # ---------------------------------
     
     payload = {
         "model": "google/gemini-3.5-flash",
-        "messages": messages # Send the full history array!
+        "messages": messages
     }
 
     try:
-        # Call OpenRouter API asynchronously
         async with httpx.AsyncClient(timeout=15.0) as client:
             response = await client.post(OPENROUTER_URL, headers=headers, json=payload)
             response.raise_for_status()
@@ -78,7 +64,6 @@ async def write_data(item: TextItem):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"LLM Error: {str(e)}")
 
-    # Save BOTH user text and AI response
     db[current_id] = {"user": item.text, "ai": llm_response}
     inserted_id = current_id
     current_id += 1
@@ -87,13 +72,11 @@ async def write_data(item: TextItem):
 
 @app.delete("/api/data/{item_id}")
 def delete_data(item_id: int):
-    """DELETE: Remove an item"""
     if item_id in db:
         del db[item_id]
         return {"message": f"Item {item_id} deleted."}
     raise HTTPException(status_code=404, detail="Item not found")
 
-# --- NEW ROUTE: CLEAR ALL DATA FOR "NEW CHAT" ---
 @app.delete("/api/reset")
 def reset_data():
     global db, current_id
