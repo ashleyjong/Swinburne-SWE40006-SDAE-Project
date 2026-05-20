@@ -21,7 +21,10 @@ class TextItem(BaseModel):
 
 @app.get("/")
 def serve_frontend():
-    return FileResponse("public/index.html")
+    # Dynamically calculate the absolute path to the frontend file
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    file_path = os.path.join(base_dir, "public", "index.html")
+    return FileResponse(file_path)
 
 @app.get("/api/data")
 def read_data():
