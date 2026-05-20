@@ -1,0 +1,14 @@
+[project]
+name = "swinburne-swe40006-sdae-project"
+version = "0.1.0"
+description = ""
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "fastapi>=0.136.1",
+    "httpx>=0.28.1",
+    "pydantic>=2.13.4",
+    "pytest>=9.0.3",
+    "python-dotenv>=1.2.2",
+    "uvicorn>=0.47.0",
+]
