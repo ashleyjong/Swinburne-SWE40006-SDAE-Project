@@ -257,6 +257,7 @@
             localStorage.setItem('theme', isLight ? 'light' : 'dark');
             document.getElementById('theme-icon').innerText = isLight ? 'dark_mode' : 'light_mode';
             document.getElementById('theme-text').innerText = isLight ? 'Toggle dark mode' : 'Toggle light mode';
+            window.va('event', { name: 'Theme Toggled', data: { theme: isLight ? 'light' : 'dark' } });
         }
 
         if (localStorage.getItem('theme') === 'light') {
@@ -288,6 +289,7 @@
 
         async function resetChat() {
             await fetch('/api/reset', { method: 'DELETE' });
+            window.va('event', { name: 'Chat Reset' });
             chatContainer.innerHTML = '';
             mainWrapper.classList.remove('chat-active'); 
             setRandomWelcome(); 
@@ -347,10 +349,12 @@
                 
                 document.getElementById(tempId).remove();
                 addMessageToUI(result.id, result.data.user, result.data.ai);
+                window.va('event', { name: 'Message Sent' });
                 
             } catch (error) {
                 document.getElementById(tempId).remove();
                 alert("Error connecting to LLM. Please try again.");
+                window.va('event', { name: 'LLM Connection Error', data: { error: error.message } });
             } finally {
                 inputField.disabled = false;
                 inputField.focus();
