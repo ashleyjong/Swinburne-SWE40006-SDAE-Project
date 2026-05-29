@@ -166,12 +166,19 @@
         .ai-text a:hover { text-decoration: underline; }
 
         .input-box {
-            display: flex; align-items: center; background-color: var(--bg-input); border-radius: 32px;
-            padding: 12px 24px; gap: 16px; border: 1px solid var(--border-color); transition: border-color 0.2s, background-color 0.3s;
+            display: flex; align-items: flex-end; background-color: var(--bg-input); border-radius: 24px;
+            padding: 8px 24px; gap: 16px; border: 1px solid var(--border-color); transition: border-color 0.2s, background-color 0.3s;
             pointer-events: auto;
         }
         .input-box:focus-within { border-color: #888; }
-        input[type="text"] { flex: 1; background: transparent; border: none; color: var(--text-primary); font-size: 16px; outline: none; padding: 8px 0; }
+        textarea {
+            flex: 1; background: transparent; border: none; color: var(--text-primary); font-size: 16px; outline: none; padding: 8px 0;
+            resize: none; height: 24px; max-height: 160px; font-family: inherit; line-height: 1.5;
+        }
+        textarea::-webkit-scrollbar { width: 4px; }
+        #send-btn {
+            margin-bottom: 8px;
+        }
 
         .loading-shimmer {
             height: 16px; width: 200px; margin-top: 7px;
